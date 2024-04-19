@@ -20,7 +20,8 @@ required_chat_ids = [-1001289294178, -1002140420430]  # Replace with actual chat
 def is_member(chat_id, user_id):
     try:
         chat_member = bot.get_chat_member(chat_id, user_id)
-        if chat_member.status == 'member':
+        # Check if the user is a member, administrator, or the creator of the chat
+        if chat_member.status in ['member', 'administrator', 'creator']:
             return True
     except Exception as e:
         print(f"Error checking membership for user {user_id} in chat {chat_id}: {e}")
