@@ -1,0 +1,15 @@
+{
+  "name": "giveaway-bot",
+  "description": "A Telegram bot for managing giveaways.",
+  "env": {
+    "BOT_TOKEN": {
+      "description": "Your bot token, as a string.",
+      "value": ""
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
