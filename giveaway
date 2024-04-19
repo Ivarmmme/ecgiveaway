@@ -1,0 +1,97 @@
+import os
+import telebot
+from telebot import types
+
+# Get bot token from environment variable
+TOKEN = os.environ.get('BOT_TOKEN')
+if TOKEN is None:
+    print("Error: BOT_TOKEN environment variable is not set.")
+    exit()
+
+bot = telebot.TeleBot(TOKEN)
+
+# Chat links
+chat_links = ["@ecggiveaway_updates, @English_chatting_club_Global"]
+
+# List of chat IDs for required channels and groups
+required_chat_ids = [-1001289294178, -1002140420430]  # Replace with actual chat IDs
+
+# Function to check if a user is a member of a chat
+def is_member(chat_id, user_id):
+    try:
+        chat_member = bot.get_chat_member(chat_id, user_id)
+        if chat_member.status == 'member':
+            return True
+    except Exception as e:
+        print(f"Error checking membership for user {user_id} in chat {chat_id}: {e}")
+    return False
+
+# Function to generate referral link
+def generate_referral_link(bot_username, user_id):
+    return f'https://t.me/{bot_username}?start=user{user_id}'
+
+# Define the /start command handler
+@bot.message_handler(commands=['start'])
+def start(message):
+    chat_id = message.chat.id
+    user_id = message.from_user.id
+
+    # Send the initial message with the "Joined All" button and chat links
+    markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+    markup.add(types.KeyboardButton(text="Joined All"))
+    
+    chat_links_text = '\n'.join([f"Join Chats {i+1}: {link}" for i, link in enumerate(chat_links)])
+    
+    bot.send_message(chat_id, f"To participate in the giveaway, you must join all channels and groups listed below:\n\n{chat_links_text}", reply_markup=markup)
+
+# Define the "Joined All" button handler
+@bot.message_handler(func=lambda message: message.text == "Joined All")
+def joined_all(message):
+    chat_id = message.chat.id
+    user_id = message.from_user.id
+    is_joined_all = True
+
+    # Check if user is a member of all required channels and groups
+    for required_chat_id in required_chat_ids:
+        if not is_member(required_chat_id, user_id):
+            is_joined_all = False
+            break
+
+    # If user is a member of all required chats, allow participation
+    if is_joined_all:
+        markup = types.ReplyKeyboardMarkup(row_width=1, resize_keyboard=True)
+        markup.add(types.KeyboardButton(text="Referral System"), types.KeyboardButton(text="Contact Support"), types.KeyboardButton(text="Help"))
+        bot.send_message(chat_id, "🎉 Congratulations! 🎉\n\nYou have successfully joined all specified channels and groups required to participate in the giveaway. Thank you for completing this step!\n\nYou are now eligible to participate in the giveaway.\n\nPlease select one of the options below for further actions:", reply_markup=markup)
+    else:
+        bot.send_message(chat_id, "⚠️ You have not joined all required channels/groups. Please join all required channels/groups to participate in the giveaway.")
+
+# Define the Referral System button handler
+@bot.message_handler(func=lambda message: message.text == "Referral System")
+def referral_system(message):
+    chat_id = message.chat.id
+    bot_username = bot.get_me().username
+    user_id = message.from_user.id
+    referral_link = generate_referral_link(bot_username, user_id)
+    bot.send_message(chat_id, f"Refer your friends to Increase the chance of winning, Here is your unique referral link: {referral_link}")
+
+# Define the Contact Support button handler
+@bot.message_handler(func=lambda message: message.text == "Contact Support")
+def contact_support(message):
+    chat_id = message.chat.id
+    bot.send_message(chat_id, "For assistance or support, please contact our support team at [@Dankee0].")
+
+# Define the Help button handler
+@bot.message_handler(func=lambda message: message.text == "Help")
+def help(message):
+    chat_id = message.chat.id
+    bot.send_message(chat_id, "Welcome to the Help section!\n\n"
+        "Here are some instructions for participating in the giveaway:\n\n"
+        "1. Start by joining all specified channels and groups listed.\n"
+        "2. Once you've joined all channels and groups, click the 'Joined All' button.\n"
+        "3. Referring others can increase your chances of winning! Click the 'Referral System' button to learn more.\n"
+        "4. For all updates related to the giveaway, reach out to @ecggiveaway_updates.\n"
+        "5. If you encounter any issues or need assistance, you can contact support by clicking the 'Contact Support' button.\n\n"
+        "If you have any other questions or need further assistance, feel free to ask!")
+    
+# Start the bot
+bot.polling()
