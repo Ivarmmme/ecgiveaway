@@ -66,18 +66,29 @@ def joined_all(message):
     else:
         bot.send_message(chat_id, "⚠️ You have not joined all required channels/groups. Please join all required channels/groups to participate in the giveaway.")
 
+# Function to check if a user is eligible to use commands in the second section
+def is_eligible(chat_id, user_id):
+    try:
+        chat_member = bot.get_chat_member(chat_id, user_id)
+        # Check if the user is a member, administrator, or creator of the chat
+        if chat_member.status in ['member', 'administrator', 'creator']:
+            return True
+    except Exception as e:
+        print(f"Error checking eligibility for user {user_id} in chat {chat_id}: {e}")
+    return False
+
 # Define the Referral System button handler
 @bot.message_handler(func=lambda message: message.text == "Referral System")
 def referral_system(message):
     chat_id = message.chat.id
     user_id = message.from_user.id
     
-    # Check if the user has completed the initial steps
-    if not has_completed_initial_steps(chat_id, user_id):
-        bot.send_message(chat_id, "⚠️ Please complete the initial steps first by joining all required chats and clicking 'Joined All'.")
+    # Check if the user is eligible (member, admin, or creator) to use the command
+    if not is_eligible(chat_id, user_id):
+        bot.send_message(chat_id, "⚠️ You are not eligible to use this command. Please join all required chats to participate in the giveaway.")
         return
     
-    # User has completed the initial steps, proceed with referral system functionality
+    # User is eligible, proceed with referral system functionality
     bot_username = bot.get_me().username
     referral_link = generate_referral_link(bot_username, user_id)
     bot.send_message(chat_id, f"Refer your friends to increase your chance of winning! Here is your unique referral link: {referral_link}")
@@ -88,12 +99,12 @@ def contact_support(message):
     chat_id = message.chat.id
     user_id = message.from_user.id
     
-    # Check if the user has completed the initial steps
-    if not has_completed_initial_steps(chat_id, user_id):
-        bot.send_message(chat_id, "⚠️ Please complete the initial steps first by joining all required chats and clicking 'Joined All'.")
+    # Check if the user is eligible (member, admin, or creator) to use the command
+    if not is_eligible(chat_id, user_id):
+        bot.send_message(chat_id, "⚠️ You are not eligible to use this command. Please join all required chats to participate in the giveaway.")
         return
     
-    # User has completed the initial steps, proceed with contacting support functionality
+    # User is eligible, proceed with contacting support functionality
     bot.send_message(chat_id, "For assistance or support, please contact our support team at [@Dankee0].")
 
 # Define the Help button handler
@@ -102,12 +113,12 @@ def help(message):
     chat_id = message.chat.id
     user_id = message.from_user.id
     
-    # Check if the user has completed the initial steps
-    if not has_completed_initial_steps(chat_id, user_id):
-        bot.send_message(chat_id, "⚠️ Please complete the initial steps first by joining all required chats and clicking 'Joined All'.")
+    # Check if the user is eligible (member, admin, or creator) to use the command
+    if not is_eligible(chat_id, user_id):
+        bot.send_message(chat_id, "⚠️ You are not eligible to use this command. Please join all required chats to participate in the giveaway.")
         return
     
-    # User has completed the initial steps, proceed with help functionality
+    # User is eligible, proceed with help functionality
     bot.send_message(chat_id, "Welcome to the Help section!\n\n"
         "Here are some instructions for participating in the giveaway:\n\n"
         "1. Start by joining all specified channels and groups listed.\n"
