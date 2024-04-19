@@ -70,21 +70,44 @@ def joined_all(message):
 @bot.message_handler(func=lambda message: message.text == "Referral System")
 def referral_system(message):
     chat_id = message.chat.id
-    bot_username = bot.get_me().username
     user_id = message.from_user.id
+    
+    # Check if the user has completed the initial steps
+    if not has_completed_initial_steps(chat_id, user_id):
+        bot.send_message(chat_id, "⚠️ Please complete the initial steps first by joining all required chats and clicking 'Joined All'.")
+        return
+    
+    # User has completed the initial steps, proceed with referral system functionality
+    bot_username = bot.get_me().username
     referral_link = generate_referral_link(bot_username, user_id)
-    bot.send_message(chat_id, f"Refer your friends to Increase the chance of winning, Here is your unique referral link: {referral_link}")
+    bot.send_message(chat_id, f"Refer your friends to increase your chance of winning! Here is your unique referral link: {referral_link}")
 
 # Define the Contact Support button handler
 @bot.message_handler(func=lambda message: message.text == "Contact Support")
 def contact_support(message):
     chat_id = message.chat.id
-    bot.send_message(chat_id, "For assistance or support, please contact our support team at @Dankee0")
+    user_id = message.from_user.id
+    
+    # Check if the user has completed the initial steps
+    if not has_completed_initial_steps(chat_id, user_id):
+        bot.send_message(chat_id, "⚠️ Please complete the initial steps first by joining all required chats and clicking 'Joined All'.")
+        return
+    
+    # User has completed the initial steps, proceed with contacting support functionality
+    bot.send_message(chat_id, "For assistance or support, please contact our support team at [@Dankee0].")
 
 # Define the Help button handler
 @bot.message_handler(func=lambda message: message.text == "Help")
 def help(message):
     chat_id = message.chat.id
+    user_id = message.from_user.id
+    
+    # Check if the user has completed the initial steps
+    if not has_completed_initial_steps(chat_id, user_id):
+        bot.send_message(chat_id, "⚠️ Please complete the initial steps first by joining all required chats and clicking 'Joined All'.")
+        return
+    
+    # User has completed the initial steps, proceed with help functionality
     bot.send_message(chat_id, "Welcome to the Help section!\n\n"
         "Here are some instructions for participating in the giveaway:\n\n"
         "1. Start by joining all specified channels and groups listed.\n"
@@ -93,6 +116,7 @@ def help(message):
         "4. For all updates related to the giveaway, reach out to @ecggiveaway_updates.\n"
         "5. If you encounter any issues or need assistance, you can contact support by clicking the 'Contact Support' button.\n\n"
         "If you have any other questions or need further assistance, feel free to ask!")
+
     
 # Start the bot
 bot.polling()
